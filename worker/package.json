@@ -1,0 +1,21 @@
+{
+  "name": "lotwise-portfolio-worker",
+  "version": "1.0.0",
+  "description": "Kafka worker for Lotwise Portfolio Tracker",
+  "main": "src/worker.js",
+  "scripts": {
+    "start": "node src/worker.js",
+    "dev": "nodemon src/worker.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": ["kafka", "worker", "portfolio", "fifo"],
+  "author": "FundTec",
+  "license": "MIT"
+}
