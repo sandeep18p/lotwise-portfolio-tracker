@@ -14,7 +14,15 @@ const PORT = process.env.PORT || 3001;
 // Security middleware - Fix trust proxy setting for Railway
 app.set('trust proxy', true);
 app.use(helmet());
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://your-frontend-url.up.railway.app',
+    'https://*.up.railway.app'
+  ],
+  credentials: true
+}));
 
 // Rate limiting with Railway-specific configuration
 const limiter = rateLimit({
