@@ -11,8 +11,8 @@ const { connectProducer, disconnectProducer } = require('./config/kafka');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware - Fix trust proxy setting
-app.set('trust proxy', true); // Changed from 1 to true for Railway
+// Security middleware - Fix trust proxy setting for Railway
+app.set('trust proxy', true);
 app.use(helmet());
 app.use(cors());
 
@@ -39,8 +39,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    service: 'Lotwise Portfolio Backend API',
-    database: 'Connected' // You can add database status here
+    service: 'Lotwise Portfolio Backend API'
   });
 });
 
