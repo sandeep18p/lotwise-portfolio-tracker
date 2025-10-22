@@ -65,16 +65,49 @@ class LotService {
     return realizedPnLRecords;
   }
 
+  // static async getPositions() {
+  //   return await Lot.getAllOpenLots();
+  // }
+
   static async getPositions() {
-    return await Lot.getAllOpenLots();
+    const query = `
+      SELECT symbol, 
+             SUM(quantity) as total_quantity,
+             AVG(price) as avg_cost
+      FROM lots 
+      WHERE quantity > 0 
+      GROUP BY symbol
+    `;
+    const result = await pool.query(query);
+    return result.rows;
   }
+
+  // static async getRealizedPnL() {
+  //   return await RealizedPnL.getSummary();
+  // }
 
   static async getRealizedPnL() {
-    return await RealizedPnL.getSummary();
+    const query = `
+      SELECT symbol,
+             SUM(quantity_closed) as total_quantity_closed,
+             SUM(realized_pnl) as total_realized_pnl,
+             AVG(avg_cost) as avg_cost,
+             AVG(sell_price) as avg_sell_price
+      FROM realized_pnl 
+      GROUP BY symbol
+    `;
+    const result = await pool.query(query);
+    return result.rows;
   }
 
+  // static async getTotalRealizedPnL() {
+  //   return await RealizedPnL.getTotalRealizedPnL();
+  // }
+
   static async getTotalRealizedPnL() {
-    return await RealizedPnL.getTotalRealizedPnL();
+    const query = 'SELECT SUM(realized_pnl) as total FROM realized_pnl';
+    const result = await pool.query(query);
+    return result.rows[0].total || 0;
   }
 }
 
