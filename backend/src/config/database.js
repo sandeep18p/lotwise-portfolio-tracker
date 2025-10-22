@@ -33,32 +33,47 @@ console.log('=====================================');
 
 const pool = new Pool({
   ...dbConfig,
-  max: 10, // Reduced from 20
-  idleTimeoutMillis: 10000, // Reduced from 30000
-  connectionTimeoutMillis: 5000, // Increased from 2000
-  allowExitOnIdle: true, // Allow process to exit when idle
+  max: 10,
+  idleTimeoutMillis: 10000,
+  connectionTimeoutMillis: 10000, // Increased timeout
+  allowExitOnIdle: true,
 });
 
-// Test the connection
+// Test the connection with retry logic
+let connectionAttempts = 0;
+const maxAttempts = 5;
+
+const testConnection = async () => {
+  try {
+    const client = await pool.connect();
+    console.log('✅ Database connection test successful');
+    client.release();
+    return true;
+  } catch (err) {
+    connectionAttempts++;
+    console.error(`❌ Database connection test failed (attempt ${connectionAttempts}/${maxAttempts}):`, err.message);
+    
+    if (connectionAttempts < maxAttempts) {
+      console.log(`⏳ Retrying connection in 5 seconds...`);
+      setTimeout(testConnection, 5000);
+    } else {
+      console.error('❌ Max connection attempts reached. Server will continue without database.');
+      // Don't exit - let the server start and handle DB errors gracefully
+    }
+    return false;
+  }
+};
+
+// Test connection with retry
+testConnection();
+
 pool.on('connect', (client) => {
   console.log('✅ Connected to PostgreSQL database');
-  console.log('Connection details:', client.connectionParameters);
 });
 
 pool.on('error', (err) => {
   console.error('❌ Unexpected error on idle client', err);
-  process.exit(-1);
+  // Don't exit on pool errors - handle gracefully
 });
-
-// Test connection immediately
-pool.connect()
-  .then(client => {
-    console.log('✅ Database connection test successful');
-    client.release();
-  })
-  .catch(err => {
-    console.error('❌ Database connection test failed:', err);
-    process.exit(-1);
-  });
 
 module.exports = pool;
