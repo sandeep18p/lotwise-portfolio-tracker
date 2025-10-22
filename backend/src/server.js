@@ -11,16 +11,23 @@ const { connectProducer, disconnectProducer } = require('./config/kafka');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Security middleware
+// Security middleware - Fix trust proxy setting
+app.set('trust proxy', true); // Changed from 1 to true for Railway
 app.use(helmet());
 app.use(cors());
 
-// Rate limiting
+// Rate limiting with Railway-specific configuration
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  message: 'Too many requests from this IP, please try again later.',
+  // Railway-specific configuration
+  standardHeaders: true,
+  legacyHeaders: false,
+  // Skip rate limiting for health checks
+  skip: (req) => req.path === '/health'
 });
+
 app.use(limiter);
 
 // Body parsing middleware
@@ -32,7 +39,8 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    service: 'Lotwise Portfolio Backend API'
+    service: 'Lotwise Portfolio Backend API',
+    database: 'Connected' // You can add database status here
   });
 });
 
