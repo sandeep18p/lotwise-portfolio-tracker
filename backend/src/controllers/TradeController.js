@@ -20,31 +20,6 @@ class TradeController {
         });
       }
 
-
-
-      // In TradeController.js
-static async getAllTrades(req, res) {
-  try {
-    const trades = await Trade.getAll();
-    res.json({ trades });
-  } catch (error) {
-    console.error('Error fetching trades:', error);
-    
-    // Handle database connection errors specifically
-    if (error.code === 'ENETUNREACH' || error.code === 'ECONNREFUSED') {
-      return res.status(503).json({
-        error: 'Database service unavailable',
-        details: 'Unable to connect to database. Please try again later.',
-        retryAfter: 30
-      });
-    }
-    
-    res.status(500).json({
-      error: 'Failed to fetch trades',
-      details: error.message
-    });
-  }
-}
       // Create trade record
       const trade = await Trade.create(
         symbol.toUpperCase(),
@@ -68,6 +43,15 @@ static async getAllTrades(req, res) {
       });
     } catch (error) {
       console.error('Error creating trade:', error);
+      
+      // Handle database connection errors specifically
+      if (error.code === 'ENETUNREACH' || error.code === 'ECONNREFUSED') {
+        return res.status(503).json({
+          error: 'Database service unavailable',
+          details: 'Unable to connect to database. Please try again later.'
+        });
+      }
+      
       res.status(500).json({
         error: 'Failed to create trade',
         details: error.message
@@ -81,6 +65,15 @@ static async getAllTrades(req, res) {
       res.json({ trades });
     } catch (error) {
       console.error('Error fetching trades:', error);
+      
+      // Handle database connection errors specifically
+      if (error.code === 'ENETUNREACH' || error.code === 'ECONNREFUSED') {
+        return res.status(503).json({
+          error: 'Database service unavailable',
+          details: 'Unable to connect to database. Please try again later.'
+        });
+      }
+      
       res.status(500).json({
         error: 'Failed to fetch trades',
         details: error.message
