@@ -1,17 +1,16 @@
-
 const { Pool } = require('pg');
 require('dotenv').config();
 
-
+// Handle Railway's DATABASE_URL format or individual variables
 let dbConfig;
 if (process.env.DATABASE_URL) {
-  // Railway provides DATABASE_URL as a single connection string
+  console.log('Using DATABASE_URL for connection');
   dbConfig = {
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
   };
 } else {
-  // Fallback to individual environment variables
+  console.log('Using individual DB variables for connection');
   dbConfig = {
     host: process.env.DB_HOST || 'localhost',
     port: process.env.DB_PORT || 5432,
@@ -22,8 +21,10 @@ if (process.env.DATABASE_URL) {
   };
 }
 
+console.log('Final dbConfig:', dbConfig);
+
 const pool = new Pool({
-  ...dbConfig,  // ✅ THIS IS THE KEY LINE!
+  ...dbConfig,
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
